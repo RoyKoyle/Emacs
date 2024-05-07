@@ -285,9 +285,9 @@ Dash:
 	:config
 	  (dashboard-setup-startup-hook)
     ;;      (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
-	  (setq dashboard-items '((recents  . 5)
-				  (projects . 5)))
-	  (setq dashboard-banner-logo-title "TEST"))
+	  (setq dashboard-items '((recents  . 10)
+				  (projects . 10)))
+	  (setq dashboard-banner-logo-title ""))
 #+end_src
 
 Org:
@@ -336,6 +336,8 @@ Magit:
     ("M-g" . magit-status))
 #+END_SRC
 
+** User own stuff
+
 Visit config:
 #+BEGIN_SRC emacs-lisp
     (defun roy/config-visit ()
@@ -350,6 +352,8 @@ Visit config:
     (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
   (global-set-key (kbd "C-c r") 'roy/config-reload)
 #+END_SRC
+
+
 
 Diminish:
 #+BEGIN_SRC emacs-lisp
