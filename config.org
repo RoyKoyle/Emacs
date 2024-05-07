@@ -1,0 +1,266 @@
+#+STARTUP: overview
+#+TITLE: Config
+#+CREATOR: Roy Al Koyle
+#+LANGUAGE: en
+#+OPTIONS: num:nil
+
+Package Stuff:
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (setq package-enable-at-startup nil)
+
+  (setq package-archives '(("ELPA"  . "http://tromey.com/elpa/")
+			   ("melpa" . "https://melpa.org/packages/")))
+  (package-initialize)
+
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+#+END_SRC
+
+Stupid GUI stuff:
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+#+END_SRC
+
+Theme:
+#+BEGIN_SRC emacs-lisp
+  (use-package cyberpunk-theme
+    :ensure t
+    :init
+      (load-theme 'cyberpunk t))
+#+END_SRC
+
+Modeline:
+#+begin_src emacs-lisp
+    (use-package spaceline
+      :ensure t
+      :config
+      (require 'spaceline-config)
+	(setq spaceline-buffer-encoding-abbrev-p nil)
+	(setq spaceline-line-column-p nil)
+	(setq spaceline-line-p nil)
+	(setq powerline-default-separator (quote arrow))
+	(spaceline-spacemacs-theme))
+  (setq powerline-default-separator nil)
+#+end_src
+
+Convenience:
+#+BEGIN_SRC emacs-lisp
+    (setq make-backup-files nil)
+    (setq auto-save-default nil)
+    (defalias 'yes-or-no-p 'y-or-n-p)
+    (setq ring-bell-function 'ignore)
+
+    (setq scroll-conservatively 100)
+
+    (setq line-number-mode t)
+  (setq column-number-mode t)
+  (global-subword-mode 1)
+  (show-paren-mode 1)
+#+END_SRC
+
+Rainbow delimiters:
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+  :ensure t
+  :init
+    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+END_SRC
+
+Pairs:
+#+BEGIN_SRC emacs-lisp
+  (setq electric-pair-pairs '(
+			   (?\{ . ?\})
+			   (?\( . ?\))
+			   (?\[ . ?\])
+			   (?\" . ?\")
+			   ))
+
+  (electric-pair-mode t)
+#+END_SRC
+
+Time is money:
+#+BEGIN_SRC emacs-lisp
+  (setq display-time-24hr-format t)
+  (setq display-time-format "%H:%M - %d %B %Y")
+  (display-time-mode 1)
+#+END_SRC
+
+
+Help:
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+  :ensure t
+  :config
+    (which-key-mode))
+#+END_SRC
+
+Search:
+#+begin_src emacs-lisp
+(use-package swiper
+  :ensure t
+  :bind ("C-s" . 'swiper))
+#+end_src
+
+Ivy:
+#+begin_src emacs-lisp
+(use-package ivy
+  :ensure t)
+#+end_src
+
+Avy:
+#+begin_src emacs-lisp
+(use-package avy
+  :ensure t
+  :bind
+    ("M-s" . avy-goto-char))
+#+end_src
+
+Buffers:
+#+begin_src emacs-lisp
+  (defun kill-current-buffer ()
+    "Kills the current buffer."
+    (interactive)
+    (kill-buffer (current-buffer)))
+  (global-set-key (kbd "C-x k") 'kill-current-buffer)
+
+  (setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
+
+  (global-set-key (kbd "C-x b") 'ibuffer)
+  (setq ibuffer-expert t)
+#+end_src
+
+Windows:
+#+begin_src emacs-lisp
+    (use-package switch-window
+      :ensure t
+
+      :config
+	(setq switch-window-input-style 'minibuffer)
+	(setq switch-window-increase 4)
+	(setq switch-window-threshold 2)
+	(setq switch-window-shortcut-style 'qwerty)
+	(setq switch-window-qwerty-shortcuts
+	    '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
+      :bind
+	([remap other-window] . switch-window))
+
+    (defun split-and-follow-horizontally ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+  (defun split-and-follow-vertically ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+end_src
+
+Thank you God:
+#+begin_src emacs-lisp
+(use-package hungry-delete
+  :ensure t
+  :config
+    (global-hungry-delete-mode))
+#+end_src
+
+Beacon:
+#+begin_src emacs-lisp
+(use-package beacon
+  :ensure t
+  :config
+    (beacon-mode 1))
+#+end_src
+
+Helm?
+#+begin_src emacs-lisp
+  (use-package helm
+    :ensure t
+    :bind
+    ("C-x C-f" . 'helm-find-files)
+    ("C-x C-b" . 'helm-buffers-list)
+    ("M-x" . 'helm-M-x)
+    ("M-y" . 'helm-show-kill-ring)
+    :config
+    (defun roy/helm-hide-minibuffer ()
+      (when (with-helm-buffer helm-echo-input-in-header-line)
+	(let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+	  (overlay-put ov 'window (selected-window))
+	  (overlay-put ov 'face
+		       (let ((bg-color (face-background 'default nil)))
+			 `(:background ,bg-color :foreground ,bg-color)))
+	  (setq-local cursor-type nil))))
+    (add-hook 'helm-minibuffer-set-up-hook 'roy/helm-hide-minibuffer)
+    (setq helm-autoresize-max-height 0
+	  helm-autoresize-min-height 40
+	  helm-M-x-fuzzy-match t
+	  helm-buffers-fuzzy-matching t
+	  helm-recentf-fuzzy-match t
+	  helm-semantic-fuzzy-match t
+	  helm-imenu-fuzzy-match t
+	  helm-split-window-in-side-p nil
+	  helm-move-to-line-cycle-in-source nil
+	  helm-ff-search-library-in-sexp t
+	  helm-scroll-amount 8 
+	  helm-echo-input-in-header-line t)
+    :init
+    (helm-mode 1))
+
+  ;;(require 'helm-config)    
+  ;;(helm-autoresize-mode 1)
+  ;;(define-key helm-find-files-map (kbd "C-b") 'helm-find-files-up-one-level)
+  ;;(define-key helm-find-files-map (kbd "C-f") 'helm-execute-persistent-action)
+#+end_src
+
+Yasnippet:
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :config
+      (use-package yasnippet-snippets
+	:ensure t)
+      (yas-reload-all))
+  (yas-global-mode 1)
+#+END_SRC
+
+Projectile:
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :init
+      (projectile-mode 1))
+#+end_src
+
+Dash:
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+      (dashboard-setup-startup-hook)
+;;      (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
+      (setq dashboard-items '((recents  . 5)
+			      (projects . 5)))
+      (setq dashboard-banner-logo-title ""))
+#+end_src
+
+Visit config:
+#+BEGIN_SRC emacs-lisp
+    (defun roy/config-visit ()
+      "Visits the default ORG config file"
+      (interactive)
+      (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c e") 'roy/config-visit)
+
+    (defun roy/config-reload ()
+    "Reloads ~/.emacs.d/config.org at runtime"
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'roy/config-reload)
+#+END_SRC
