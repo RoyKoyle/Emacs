@@ -7,6 +7,9 @@
 
 .python-environments
 config.el
+recentf
+projectile-bookmarks.eld
+org-persist
 auto-save-list
 elpa
 transient
